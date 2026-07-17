@@ -2,7 +2,7 @@ import math,time,os
 size=40
 speed=5
 fps=30
-amplitude=40
+amplitude=1
 frequency=1.5
 wave=["" for i in range(size)]
 def init(phase):
@@ -12,9 +12,11 @@ def init(phase):
         y = (math.sin(phase + 2*math.pi*frequency*x)+1)*amplitude/2
         wave[i] = ' '*int(y) + '*'
 def printwave(second):
+    global amplitude
     t=time.time()
     while (time.time()-t<=second):   
         init(time.time() * speed%(2*math.pi))
+        amplitude+=0.1
         for part in wave:
             print(part)
         time.sleep(1/fps)
