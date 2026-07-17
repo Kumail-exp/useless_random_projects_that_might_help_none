@@ -8,7 +8,7 @@ def AND(a: bool, b: bool) -> bool:
 def OR(a: bool, b: bool) -> bool:
     return NAND(NOT(a), NOT(b))
 def NOR(a: bool, b: bool) -> bool:
-    return NAND(NOT(a), NOT(b))
+    return NOT(OR(a, b))
 def XOR(a: bool, b: bool) -> bool:
     return AND(OR(a, b), NAND(a, b))
 def XNOR(a: bool, b: bool) -> bool:
