@@ -17,7 +17,9 @@ def to_stream(num:int,size=8):
     for i in range(len(b)):
         binary[size-len(b)+i]=bool(int(b[i]))
     return binary
-def to_num(stream: list[bool], size=8, two_complement=False):
+def to_num(stream: list[bool], size=None, two_complement=False):
+    if size is None:
+        size = len(stream)  
     value = 0
     if two_complement:
         value -= int(stream[0]) * (1 << (size - 1))
@@ -30,6 +32,16 @@ def to_num(stream: list[bool], size=8, two_complement=False):
 
     return value
 
+class Register:
+    def __init__(self, size=8):
+        self.size = size
+        self.value = [False] * size
+
+    def load(self, new_value: list[bool]):
+        self.value = new_value.copy()
+
+    def read(self) -> list[bool]:
+        return self.value.copy()
 
 # for i in truth_table(Full_Adder):
 #     print(i)
