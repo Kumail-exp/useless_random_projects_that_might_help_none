@@ -13,6 +13,7 @@ class CPU:
         self.pc:int=0
         self.programm=program
         self.running=True
+        self.alu=ALU()
 
 
     def execute(self,instruction:list[bool]):
@@ -29,12 +30,15 @@ class CPU:
                 self.reg.write(r1, instruction[8:16], enable=True)
             case 9:#display
                 self.display(r1)
-            case 10:
+            case 10:#jump
                 return to_num(extra)
+            case 11:#jc 
+                if(self.alu.get_flags(to_num(r1))):
+                    return to_num(extra)
             case _:
                 a = self.reg.read(r2)
                 b = self.reg.read(r3)
-                self.reg.write(r1, alu(a, b, opcode[1:]), enable=True)
+                self.reg.write(r1, self.alu.execute(a, b, opcode[1:]), enable=True)
         return self.pc+1
     def start(self):
         while self.running:
