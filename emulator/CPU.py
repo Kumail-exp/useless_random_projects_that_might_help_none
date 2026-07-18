@@ -1,3 +1,4 @@
+from assembler import read
 from gates import *
 from IC import *
 from regfile import *
@@ -53,11 +54,6 @@ class CPU:
         print(to_num(self.reg.read(adress)))
 
 if __name__=="__main__":
-    cpu = CPU([
-        [1,0,0,0,  0,0,0,1, 0,0,0,0,0,1,1,1],
-        [1,0,0,1,  0,0,0,1, 0,0,0,0,0,0,0,0],
-        [1,0,1,0,  0,0,0,0, 0,0,0,0,0,0,0,1],
-        
-    ])
+    cpu = CPU(read())
 
     cpu.start()

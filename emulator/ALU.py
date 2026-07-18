@@ -98,6 +98,7 @@ class ALU:
         return out
 
     def no_op(self, A):
+        # sry for names but no op is basically pass
         return A.copy()
 
     def update_flags(self, result, carry=False, overflow=False):
