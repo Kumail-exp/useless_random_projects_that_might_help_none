@@ -17,7 +17,11 @@ OPCODES={
     8:'ldi',
     9:'display',
     10:'jump',
-    11:'jc'
+    11:'jc',
+    12:'store',
+    13:'load',
+    15:'halt'
+
 }
 opcode_to_bin={v:to_stream(k,4) for k,v in OPCODES.items()}
 class ASM:
@@ -26,12 +30,17 @@ class ASM:
         self.instructions=[]
         self.labels={}
     def labelise(self):
-        for i,line in enumerate(self.program):
-            line=line.strip()
-            if line=="":
+        pc = 0
+        for line in self.program:
+            line = line.strip().lower()
+
+            if line == "" or line.startswith("#") or line.startswith(";"):
                 continue
+
             if line.endswith(":"):
-                self.labels[line[:-1]]=i
+                self.labels[line[:-1]] = pc
+            else:
+                pc += 1
     def assemble(self):
         self.labelise()
         for i,line in enumerate(self.program):
@@ -74,6 +83,13 @@ class ASM:
                 case "jc":
                     address=(to_stream(self.labels[words[2]],8)) if words[2] in self.labels else to_stream(int(words[2]),8)
                     instruction=opcode_to_bin["jc"]+to_stream({"n":0,"z":1,"c":2,"v":3}[words[1]],4)+address
+                case "store":
+                    instruction=opcode_to_bin["store"]+to_stream(reg_adress(words[1]),4)+to_stream(reg_adress(words[2]),4)+[False]*4
+                case "load":
+                    instruction=opcode_to_bin["load"]+to_stream(reg_adress(words[1]),4)+to_stream(reg_adress(words[2]),4)+[False]*4
+                case "halt":
+                    instruction=opcode_to_bin["halt"]+[False]*12
+
                 case _:
                     raise ValueError(f"Unknown instruction: {words[0]}")
             self.instructions.append(instruction)

@@ -14,4 +14,4 @@ jc Z end
 #if already reached negative then we are above hundres so end it all
 jump loop
 end:
-#thats the end so nothing needed to written here woww i luv this language
+halt

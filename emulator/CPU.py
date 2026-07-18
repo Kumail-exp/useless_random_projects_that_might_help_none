@@ -15,6 +15,7 @@ class CPU:
         self.programm=program
         self.running=True
         self.alu=ALU()
+        self.memory = [[False] * 8 for _ in range(256)]
 
 
     def execute(self,instruction:list[bool]):
@@ -36,6 +37,13 @@ class CPU:
             case 11:#jc 
                 if(self.alu.get_flags(to_num(r1))):
                     return to_num(extra)
+            case 12:#store
+                self.memory[to_num(self.reg.read(r1))]=self.reg.read(r2)
+            case 13:#load
+                self.reg.write(r1,self.memory[to_num(self.reg.read(r2))],enable=True)
+            case 15:#halt
+                self.running=False
+
             case _:
                 a = self.reg.read(r2)
                 b = self.reg.read(r3)
