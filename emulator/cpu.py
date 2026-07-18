@@ -8,41 +8,52 @@ instructions = []
 
 
 class CPU:
-    def __init__(self):
+    def __init__(self,program:list[list[bool]]):
         self.reg = REG()
-    def execute(self,instruction:list[bool]):
-        # first 4 bit opcode(last one bit is reserve for future), then 4 bit write1, then 4 bit read1 then 4 bit read2
-        opcode = instruction[:3]
-        immediate = instruction[3]
-        dest = instruction[4:8]
+        self.pc:int=0
+        self.programm=program
+        self.running=True
 
-        if immediate:
-            self.reg.write(dest, instruction[8:16], enable=True)
-        else:
-            a = self.reg.read(instruction[8:12])
-            b = self.reg.read(instruction[12:16])
-            self.reg.write(dest, alu(a, b, opcode), enable=True)
+
+    def execute(self,instruction:list[bool]):
+        # print(instruction)
+        opcode = instruction[:4]
+        r1 = instruction[4:8]
+        r2 = instruction[8:12]
+        r3 = instruction[12:16]
+        extra=instruction[8:16]
+        ocn=to_num(opcode)
+        match(ocn):
+
+            case 8:#ldi
+                self.reg.write(r1, instruction[8:16], enable=True)
+            case 9:#display
+                self.display(r1)
+            case 10:
+                return to_num(extra)
+            case _:
+                a = self.reg.read(r2)
+                b = self.reg.read(r3)
+                self.reg.write(r1, alu(a, b, opcode[1:]), enable=True)
+        return self.pc+1
+    def start(self):
+        while self.running:
+            self.pc=self.execute(self.programm[self.pc])
+            if(self.pc>=len(self.programm)):
+                self.running=False
+            
+    def reset(self):
+        self.pc=0
+        self.running=True
     def display(self,adress:list[bool]):
         print(to_num(self.reg.read(adress)))
 
 if __name__=="__main__":
-    cpu = CPU()
+    cpu = CPU([
+        [1,0,0,0,  0,0,0,1, 0,0,0,0,0,1,1,1],
+        [1,0,0,1,  0,0,0,1, 0,0,0,0,0,0,0,0],
+        [1,0,1,0,  0,0,0,0, 0,0,0,0,0,0,0,1],
+        
+    ])
 
-    # sample program to test the Cpu
-    program = [
-    [0,0,0,1, 0,0,0,1, 0,0,0,0,0,0,0,0],
-    [0,0,0,1, 0,0,1,0, 0,0,0,0,0,0,0,1],
-    [0,0,1,0, 0,0,1,1, 0,0,0,1,0,0,1,0],
-    [0,0,1,0, 0,0,0,1, 0,0,1,0,0,0,1,1],
-    [0,0,1,0, 0,0,1,0, 0,0,1,1,0,0,0,1],
-    ]
-    cpu.execute(program[0])
-    cpu.execute(program[1])
-    cpu.display(to_stream(1))
-    cpu.display(to_stream(2))
-    cpu.execute(program[2])
-    cpu.display(to_stream(3))
-    cpu.execute(program[3])
-    cpu.display(to_stream(1))
-    cpu.execute(program[4])
-    cpu.display(to_stream(2)) 
+    cpu.start()

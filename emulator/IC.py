@@ -17,7 +17,7 @@ def to_stream(num:int,size=8):
     for i in range(len(b)):
         binary[size-len(b)+i]=bool(int(b[i]))
     return binary
-def to_num(stream: list[bool], size=None, two_complement=False):
+def to_num(stream: list[bool], size=None, two_complement=False)->int:
     if size is None:
         size = len(stream)  
     value = 0
