@@ -20,6 +20,7 @@ OPCODES={
     11:'jc',
     12:'store',
     13:'load',
+    14:'cmp',
     15:'halt'
 
 }
@@ -82,11 +83,13 @@ class ASM:
                     instruction=opcode_to_bin["jump"]+[False]*4+address
                 case "jc":
                     address=(to_stream(self.labels[words[2]],8)) if words[2] in self.labels else to_stream(int(words[2]),8)
-                    instruction=opcode_to_bin["jc"]+to_stream({"n":0,"z":1,"c":2,"v":3}[words[1]],4)+address
+                    instruction=opcode_to_bin["jc"]+to_stream({"z":0,"n":1,"c":2,"v":3}[words[1]],4)+address
                 case "store":
                     instruction=opcode_to_bin["store"]+to_stream(reg_adress(words[1]),4)+to_stream(reg_adress(words[2]),4)+[False]*4
                 case "load":
                     instruction=opcode_to_bin["load"]+to_stream(reg_adress(words[1]),4)+to_stream(reg_adress(words[2]),4)+[False]*4
+                case "cmp":
+                    instruction=opcode_to_bin["cmp"]+to_stream(reg_adress(words[1]),4)+to_stream(reg_adress(words[2]),4)+[False]*4
                 case "halt":
                     instruction=opcode_to_bin["halt"]+[False]*12
 
@@ -95,15 +98,11 @@ class ASM:
             self.instructions.append(instruction)
             
                 
-
 def read():
     import sys
     with open(sys.argv[1]) as f:
-        pg=f.read().splitlines()
-        for i in range(len(pg)):
-            pg[i]=pg[i].strip()
-            if(pg[i]=="" or pg[i].startswith("#") or pg[i].startswith(";")):
-                pg[i]="Pass r0 r0"
-    asm=ASM("\n".join(pg))
-    asm.assemble()
-    return asm.instructions
+        asm = ASM(f.read())
+        asm.assemble()
+        # for i, ins in enumerate(asm.instructions):
+        #     print(i, to_num(ins[:4]))
+        return asm.instructions

@@ -26,6 +26,13 @@ class CPU:
         r3 = instruction[12:16]
         extra=instruction[8:16]
         ocn=to_num(opcode)
+        # print(
+        #     f"PC={self.pc:02}",
+        #     f"OP={to_num(opcode)}",
+        #     f"R1={to_num(r1)}",
+        #     f"R2={to_num(r2)}",
+        #     f"R3={to_num(r3)}"
+        #         ) for debugging reasons
         match(ocn):
 
             case 8:#ldi
@@ -41,6 +48,10 @@ class CPU:
                 self.memory[to_num(self.reg.read(r1))]=self.reg.read(r2)
             case 13:#load
                 self.reg.write(r1,self.memory[to_num(self.reg.read(r2))],enable=True)
+            case 14:#cmp
+                a = self.reg.read(r1)
+                b = self.reg.read(r2)
+                self.alu.execute(a, b, to_stream(2, 3))  #using sub for comparison without storing the result
             case 15:#halt
                 self.running=False
 
