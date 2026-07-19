@@ -8,7 +8,7 @@ import random
 import pyautogui
 from pynput.keyboard import Key, KeyCode
 from pynput import keyboard
-
+import pygame
 width, height = pyautogui.size() #will need this later
 x_fact=width//255
 y_fact=width//255
@@ -27,6 +27,62 @@ listener = keyboard.Listener(
 listener.start()
 
 instructions = []
+class Display:
+    def __init__(self, scale=2):
+        self.width = 255
+        self.height = 255
+        self.scale = scale
+
+        pygame.init()
+
+        self.window = pygame.display.set_mode(
+            (self.width * scale, self.height * scale)
+        )
+
+        pygame.display.set_caption("SHARK-8 Display")
+
+        self.screen = [
+            [255 for _ in range(self.width)]
+            for _ in range(self.height)
+        ]
+
+        self.running = True
+
+    def set_pixel(self, x, y, value):
+        if 0 <= x < self.width and 0 <= y < self.height:
+            self.screen[y][x] = max(0, min(255, value))
+
+    def update(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                self.running = False
+
+        for y in range(self.height):
+            for x in range(self.width):
+                c = self.screen[y][x]
+
+                pygame.draw.rect(
+                    self.window,
+                    (c, c, c),
+                    (
+                        x * self.scale,
+                        y * self.scale,
+                        self.scale,
+                        self.scale
+                    )
+                )
+
+        pygame.display.flip()
+
+    def clear(self, value=255):
+        for y in range(self.height):
+            for x in range(self.width):
+                self.screen[y][x] = value
+
+    def close(self):
+        pygame.quit()
+
+
 class CPU:
     def __init__(self,program:list[list[bool]]):
         self.reg = REG()
@@ -35,7 +91,7 @@ class CPU:
         self.running=True
         self.alu=ALU()
         self.memory = [[False] * 8 for _ in range(256)]
-
+        self.disp=Display()
 
     def map_mem(self):
         def pack(*k):
@@ -43,6 +99,7 @@ class CPU:
                 sum((1 << i) for i, key in enumerate(k) if key in pressed),
                 8
             )
+
 
         self.memory[246] = to_stream(random.randint(0, 255), 8)
 
@@ -162,7 +219,15 @@ class CPU:
                 a = self.reg.read(r2)
                 b = self.reg.read(r3)
                 self.reg.write(r1, self.alu.execute(a, b, opcode[1:]), enable=True)
+        self.updating_IO()
         return self.pc+1
+    def updating_IO(self):
+        color = to_num(self.memory[243])
+        x = to_num(self.memory[244])
+        y = to_num(self.memory[245])
+
+        self.disp.set_pixel(x, y, color)
+        self.disp.update()
     def start(self):
         while self.running:
             self.pc=self.execute(self.programm[self.pc])
