@@ -51,7 +51,7 @@ class CPU:
             case 14:#cmp
                 a = self.reg.read(r1)
                 b = self.reg.read(r2)
-                self.alu.execute(a, b, to_stream(2, 3))  #using sub for comparison without storing the result
+                self.alu.execute(a, b, [False,True,False])  #using sub for comparison without storing the result
             case 15:#halt
                 self.running=False
 
